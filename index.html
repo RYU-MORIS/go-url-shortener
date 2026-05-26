@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>短縮URLメーカー</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding-top: 50px; background-color: #f4f7f6; }
+        .container { background: white; padding: 30px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        input[type="text"] { width: 300px; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; }
+        button { padding: 10px 20px; font-size: 16px; background-color: #4285f4; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #357ae8; }
+        #result { margin-top: 20px; font-size: 18px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 短縮URLメーカー</h1>
+        <p>長く複雑なURLを、短くてスッキリした形に変換します！</p>
+        
+        <form id="urlForm">
+            <input type="text" id="longUrl" placeholder="https://..." required>
+            <button type="submit">短くする！</button>
+        </form>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // 「短くする！」ボタンが押された時の裏側の動き（さっきコマンドで打ったのと同じ処理）
+        document.getElementById('urlForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); // 画面がリロードされるのを防ぐ
+            const longUrl = document.getElementById('longUrl').value;
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = "変換中...";
+
+            try {
+                // バックエンド（Go言語）に向かってPOSTリクエストを送る
+                const response = await fetch('/shorten', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'url=' + encodeURIComponent(longUrl)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `✨ 完成！<br><a href="${data.short_url}" target="_blank">${data.short_url}</a>`;
+                } else {
+                    resultDiv.innerHTML = `<span style="color:red;">エラーが発生しました</span>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span style="color:red;">通信エラー</span>`;
+            }
+        });
+    </script>
+</body>
+</html>

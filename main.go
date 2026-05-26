@@ -50,6 +50,13 @@ func shortenHandler(w http.ResponseWriter, r *http.Request) {
 
 func redirectHandler(w http.ResponseWriter, r *http.Request) {
 	shortKey := r.URL.Path[1:]
+
+	// 💡 ここを追加：カギが空っぽなら、UI画面（index.html）を表示する！
+	if shortKey == "" {
+		http.ServeFile(w, r, "index.html")
+		return
+	}
+
 	longURL, exists := urlDatabase[shortKey]
 	if !exists {
 		http.Error(w, "URLが見つかりません", http.StatusNotFound)

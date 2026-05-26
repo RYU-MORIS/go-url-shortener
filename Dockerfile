@@ -14,6 +14,8 @@ RUN go build -o main .
 FROM alpine:latest
 WORKDIR /app
 COPY --from=builder /app/main .
+# 💡 ここを追加：画面のファイルも本番環境へ持っていく！
+COPY --from=builder /app/index.html .
 
 # 起動コマンド
 CMD ["./main"]

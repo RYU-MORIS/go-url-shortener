@@ -2,9 +2,12 @@
 FROM golang:1.22-alpine AS builder
 WORKDIR /app
 
-# 設計図をコピーして中身を組み立てる
-COPY go.mod ./
+# プログラム本体だけをコピー
 COPY . .
+
+# 💡 ここがポイント！ビルドする「直前」に、ここで go.mod を自動生成させる
+RUN go mod init app
+RUN go mod tidy
 RUN go build -o main .
 
 # 2. 本番動作用の超軽量環境を用意
